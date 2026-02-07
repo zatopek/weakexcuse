@@ -16,10 +16,10 @@ export async function groupRoutes(app: FastifyInstance) {
   });
 
   // POST /groups — create group
-  app.post("/groups", async (request) => {
+  app.post("/groups", async (request, reply) => {
     const { name, emoji } = request.body as { name: string; emoji?: string };
     if (!name || name.trim().length === 0) {
-      return { error: "Group name is required" };
+      return reply.code(400).send({ error: "Group name is required" });
     }
 
     const [group] = await sql`
@@ -38,7 +38,7 @@ export async function groupRoutes(app: FastifyInstance) {
   });
 
   // GET /groups/:id — get group details
-  app.get("/groups/:id", async (request) => {
+  app.get("/groups/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
 
     // Verify membership
@@ -47,7 +47,7 @@ export async function groupRoutes(app: FastifyInstance) {
       WHERE group_id = ${id} AND user_id = ${request.user.id} AND left_at IS NULL
     `;
     if (!membership) {
-      return { error: "Not a member of this group" };
+      return reply.code(403).send({ error: "Not a member of this group" });
     }
 
     const [group] = await sql`
@@ -69,14 +69,14 @@ export async function groupRoutes(app: FastifyInstance) {
   });
 
   // POST /groups/join — join via invite code
-  app.post("/groups/join", async (request) => {
+  app.post("/groups/join", async (request, reply) => {
     const { invite_code } = request.body as { invite_code: string };
 
     const [group] = await sql`
       SELECT * FROM groups WHERE invite_code = ${invite_code}
     `;
     if (!group) {
-      return { error: "Invalid invite code" };
+      return reply.code(404).send({ error: "Invalid invite code" });
     }
 
     // Check if already a member
@@ -86,7 +86,7 @@ export async function groupRoutes(app: FastifyInstance) {
     `;
 
     if (existing && !existing.left_at) {
-      return { error: "Already a member of this group" };
+      return reply.code(409).send({ error: "Already a member of this group" });
     }
 
     if (existing && existing.left_at) {

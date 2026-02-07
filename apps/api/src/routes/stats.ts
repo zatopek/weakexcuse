@@ -3,14 +3,14 @@ import { sql } from "@weakexcuse/db";
 
 export async function statsRoutes(app: FastifyInstance) {
   // GET /stats/leaderboard?group_id&window — ranked members by points
-  app.get("/stats/leaderboard", async (request) => {
+  app.get("/stats/leaderboard", async (request, reply) => {
     const { group_id, window = "30" } = request.query as {
       group_id: string;
       window?: string;
     };
 
     if (!group_id) {
-      return { error: "group_id is required" };
+      return reply.code(400).send({ error: "group_id is required" });
     }
 
     const days = parseInt(window);
@@ -43,14 +43,14 @@ export async function statsRoutes(app: FastifyInstance) {
   });
 
   // GET /stats/member?group_id&user_id — detailed member stats
-  app.get("/stats/member", async (request) => {
+  app.get("/stats/member", async (request, reply) => {
     const { group_id, user_id } = request.query as {
       group_id: string;
       user_id: string;
     };
 
     if (!group_id || !user_id) {
-      return { error: "group_id and user_id are required" };
+      return reply.code(400).send({ error: "group_id and user_id are required" });
     }
 
     // Points by time window

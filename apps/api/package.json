@@ -13,6 +13,7 @@
     "@fastify/cors": "^10",
     "@supabase/supabase-js": "^2.95.3",
     "@weakexcuse/db": "workspace:*",
+    "dotenv": "^17.2.4",
     "fastify": "^5"
   },
   "devDependencies": {

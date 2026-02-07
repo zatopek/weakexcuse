@@ -7,7 +7,7 @@ const DAILY_ACCUSATION_LIMIT = 3;
 
 export async function incidentRoutes(app: FastifyInstance) {
   // GET /incidents?group_id&limit&offset — paginated feed
-  app.get("/incidents", async (request) => {
+  app.get("/incidents", async (request, reply) => {
     const { group_id, limit = "20", offset = "0" } = request.query as {
       group_id: string;
       limit?: string;
@@ -15,7 +15,7 @@ export async function incidentRoutes(app: FastifyInstance) {
     };
 
     if (!group_id) {
-      return { error: "group_id is required" };
+      return reply.code(400).send({ error: "group_id is required" });
     }
 
     // Verify membership
@@ -24,7 +24,7 @@ export async function incidentRoutes(app: FastifyInstance) {
       WHERE group_id = ${group_id} AND user_id = ${request.user.id} AND left_at IS NULL
     `;
     if (!membership) {
-      return { error: "Not a member of this group" };
+      return reply.code(403).send({ error: "Not a member of this group" });
     }
 
     const incidents = await sql`
@@ -53,7 +53,7 @@ export async function incidentRoutes(app: FastifyInstance) {
   });
 
   // POST /incidents — create new incident
-  app.post("/incidents", async (request) => {
+  app.post("/incidents", async (request, reply) => {
     const { group_id, accused_id, type, severity, note } = request.body as {
       group_id: string;
       accused_id: string;
@@ -68,10 +68,10 @@ export async function incidentRoutes(app: FastifyInstance) {
       WHERE group_id = ${group_id} AND user_id IN (${request.user.id}, ${accused_id}) AND left_at IS NULL
     `;
     if (members.length < 2 && request.user.id !== accused_id) {
-      return { error: "Both users must be active group members" };
+      return reply.code(400).send({ error: "Both users must be active group members" });
     }
     if (members.length < 1) {
-      return { error: "You are not a member of this group" };
+      return reply.code(403).send({ error: "You are not a member of this group" });
     }
 
     const isSelfReport = request.user.id === accused_id;
@@ -86,7 +86,7 @@ export async function incidentRoutes(app: FastifyInstance) {
           AND created_at > now() - interval '24 hours'
       `;
       if (parseInt(count) >= DAILY_ACCUSATION_LIMIT) {
-        return { error: "Daily accusation limit reached (3 per day)" };
+        return reply.code(429).send({ error: "Daily accusation limit reached (3 per day)" });
       }
     }
 
@@ -123,20 +123,20 @@ export async function incidentRoutes(app: FastifyInstance) {
   });
 
   // POST /incidents/:id/accept — target accepts the incident
-  app.post("/incidents/:id/accept", async (request) => {
+  app.post("/incidents/:id/accept", async (request, reply) => {
     const { id } = request.params as { id: string };
 
     const [incident] = await sql`
       SELECT * FROM incidents WHERE id = ${id}
     `;
     if (!incident) {
-      return { error: "Incident not found" };
+      return reply.code(404).send({ error: "Incident not found" });
     }
     if (incident.accused_id !== request.user.id) {
-      return { error: "Only the accused can accept" };
+      return reply.code(403).send({ error: "Only the accused can accept" });
     }
     if (incident.status !== "pending") {
-      return { error: "Incident is not pending" };
+      return reply.code(400).send({ error: "Incident is not pending" });
     }
 
     const [updated] = await sql`
@@ -150,20 +150,20 @@ export async function incidentRoutes(app: FastifyInstance) {
   });
 
   // POST /incidents/:id/deny — target denies, moves to disputed
-  app.post("/incidents/:id/deny", async (request) => {
+  app.post("/incidents/:id/deny", async (request, reply) => {
     const { id } = request.params as { id: string };
 
     const [incident] = await sql`
       SELECT * FROM incidents WHERE id = ${id}
     `;
     if (!incident) {
-      return { error: "Incident not found" };
+      return reply.code(404).send({ error: "Incident not found" });
     }
     if (incident.accused_id !== request.user.id) {
-      return { error: "Only the accused can deny" };
+      return reply.code(403).send({ error: "Only the accused can deny" });
     }
     if (incident.status !== "pending") {
-      return { error: "Incident is not pending" };
+      return reply.code(400).send({ error: "Incident is not pending" });
     }
 
     const [updated] = await sql`

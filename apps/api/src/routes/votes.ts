@@ -5,7 +5,7 @@ const CONFIRM_QUORUM = 2;
 
 export async function voteRoutes(app: FastifyInstance) {
   // POST /votes — cast a vote on a disputed incident
-  app.post("/votes", async (request) => {
+  app.post("/votes", async (request, reply) => {
     const { incident_id, confirm } = request.body as {
       incident_id: string;
       confirm: boolean;
@@ -15,10 +15,10 @@ export async function voteRoutes(app: FastifyInstance) {
       SELECT * FROM incidents WHERE id = ${incident_id}
     `;
     if (!incident) {
-      return { error: "Incident not found" };
+      return reply.code(404).send({ error: "Incident not found" });
     }
     if (incident.status !== "disputed") {
-      return { error: "Incident is not in disputed status" };
+      return reply.code(400).send({ error: "Incident is not in disputed status" });
     }
 
     // Can't vote on your own incident
@@ -26,7 +26,7 @@ export async function voteRoutes(app: FastifyInstance) {
       incident.accused_id === request.user.id ||
       incident.accuser_id === request.user.id
     ) {
-      return { error: "Cannot vote on incidents you are involved in" };
+      return reply.code(403).send({ error: "Cannot vote on incidents you are involved in" });
     }
 
     // Must be a group member
@@ -35,7 +35,7 @@ export async function voteRoutes(app: FastifyInstance) {
       WHERE group_id = ${incident.group_id} AND user_id = ${request.user.id} AND left_at IS NULL
     `;
     if (!membership) {
-      return { error: "Not a member of this group" };
+      return reply.code(403).send({ error: "Not a member of this group" });
     }
 
     // Upsert vote

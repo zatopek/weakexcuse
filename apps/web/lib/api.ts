@@ -14,7 +14,7 @@ export async function api<T = unknown>(
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
       ...(session?.access_token
         ? { Authorization: `Bearer ${session.access_token}` }
         : {}),

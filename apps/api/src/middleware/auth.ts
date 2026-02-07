@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { supabaseAdmin } from "../lib/supabase.js";
+import { getSupabaseAdmin } from "../lib/supabase.js";
 import { sql } from "@weakexcuse/db";
 
 declare module "fastify" {
@@ -22,7 +22,7 @@ export async function authMiddleware(
   const {
     data: { user },
     error,
-  } = await supabaseAdmin.auth.getUser(token);
+  } = await getSupabaseAdmin().auth.getUser(token);
 
   if (error || !user) {
     return reply.code(401).send({ error: "Invalid or expired token" });

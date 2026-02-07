@@ -19,6 +19,9 @@ importers:
       '@weakexcuse/db':
         specifier: workspace:*
         version: link:../../packages/db
+      dotenv:
+        specifier: ^17.2.4
+        version: 17.2.4
       fastify:
         specifier: ^5
         version: 5.7.4
@@ -102,6 +105,9 @@ importers:
 
   packages/db:
     dependencies:
+      dotenv:
+        specifier: ^17.2.4
+        version: 17.2.4
       postgres:
         specifier: ^3
         version: 3.4.8

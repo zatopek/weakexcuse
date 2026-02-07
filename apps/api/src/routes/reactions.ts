@@ -3,7 +3,7 @@ import { sql } from "@weakexcuse/db";
 
 export async function reactionRoutes(app: FastifyInstance) {
   // POST /reactions — toggle emoji reaction (add/remove)
-  app.post("/reactions", async (request) => {
+  app.post("/reactions", async (request, reply) => {
     const { incident_id, emoji } = request.body as {
       incident_id: string;
       emoji: string;
@@ -14,7 +14,7 @@ export async function reactionRoutes(app: FastifyInstance) {
       SELECT group_id FROM incidents WHERE id = ${incident_id}
     `;
     if (!incident) {
-      return { error: "Incident not found" };
+      return reply.code(404).send({ error: "Incident not found" });
     }
 
     const [membership] = await sql`
@@ -22,7 +22,7 @@ export async function reactionRoutes(app: FastifyInstance) {
       WHERE group_id = ${incident.group_id} AND user_id = ${request.user.id} AND left_at IS NULL
     `;
     if (!membership) {
-      return { error: "Not a member of this group" };
+      return reply.code(403).send({ error: "Not a member of this group" });
     }
 
     // Check if reaction already exists — toggle
