@@ -41,7 +41,7 @@ export default function SignInPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Sign in to Roast Board</CardTitle>
+          <CardTitle className="text-2xl">Welcome back to the chaos</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">

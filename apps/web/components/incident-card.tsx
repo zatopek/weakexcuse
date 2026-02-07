@@ -29,12 +29,12 @@ const STATUS_BADGES: Record<
   string,
   { label: string; variant: "default" | "secondary" | "outline" | "destructive" }
 > = {
-  pending: { label: "Pending", variant: "outline" },
-  accepted: { label: "Accepted", variant: "default" },
-  confirmed: { label: "Confirmed", variant: "default" },
-  disputed: { label: "Disputed", variant: "destructive" },
-  rejected: { label: "Rejected", variant: "secondary" },
-  expired: { label: "Expired", variant: "secondary" },
+  pending: { label: "Awaiting judgment", variant: "outline" },
+  accepted: { label: "Owned up", variant: "default" },
+  confirmed: { label: "Guilty as charged", variant: "default" },
+  disputed: { label: "Cap detected", variant: "destructive" },
+  rejected: { label: "Walked free", variant: "secondary" },
+  expired: { label: "Got away with it", variant: "secondary" },
 };
 
 interface IncidentCardProps {
@@ -85,7 +85,7 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(action === "accept" ? "Accepted" : "Denied");
+        toast.success(action === "accept" ? "Fair enough, respect" : "Not having it!");
         onAction();
       }
     } catch (err) {
@@ -102,7 +102,7 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
         method: "POST",
         body: JSON.stringify({ incident_id: incident.id, confirm }),
       });
-      toast.success(confirm ? "Voted to confirm" : "Voted to reject");
+      toast.success(confirm ? "The people have spoken" : "Giving them the benefit of the doubt");
       onAction();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to vote");
@@ -128,20 +128,21 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
                       >
                         {incident.accused_name}
                       </button>{" "}
-                      self-reported
+                      came clean
                     </>
                   ) : (
                     <>
                       <span className="font-semibold">
                         {incident.accuser_name}
                       </span>{" "}
-                      alleges{" "}
+                      says{" "}
                       <button
                         className="font-semibold hover:underline"
                         onClick={() => setStatsOpen(true)}
                       >
                         {incident.accused_name}
                       </button>
+                      {" "}allegedly
                     </>
                   )}
                 </p>
@@ -182,7 +183,7 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
                     onClick={() => handleAction("accept")}
                   >
                     <Check className="mr-1 h-3.5 w-3.5" />
-                    Accept
+                    Fair enough
                   </Button>
                   <Button
                     size="sm"
@@ -191,14 +192,14 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
                     onClick={() => handleAction("deny")}
                   >
                     <X className="mr-1 h-3.5 w-3.5" />
-                    Deny
+                    Cap!
                   </Button>
                 </>
               )}
               {incident.status === "disputed" && (
                 <>
                   <span className="text-xs text-muted-foreground">
-                    {incident.confirm_votes} confirm
+                    {incident.confirm_votes} say guilty
                   </span>
                   <Button
                     size="sm"
@@ -207,7 +208,7 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
                     onClick={() => handleVote(true)}
                   >
                     <AlertTriangle className="mr-1 h-3.5 w-3.5" />
-                    Confirm
+                    Guilty
                   </Button>
                   <Button
                     size="sm"
@@ -215,7 +216,7 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
                     disabled={loading}
                     onClick={() => handleVote(false)}
                   >
-                    Reject
+                    Innocent
                   </Button>
                 </>
               )}

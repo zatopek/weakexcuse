@@ -64,7 +64,7 @@ export function MemberStatsSheet({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>{userName}&apos;s Stats</DialogTitle>
+          <DialogTitle>{userName}&apos;s Rap Sheet</DialogTitle>
         </DialogHeader>
 
         {loading ? (
@@ -75,12 +75,12 @@ export function MemberStatsSheet({
           </div>
         ) : !stats ? (
           <p className="text-sm text-muted-foreground">
-            Could not load stats.
+            Couldn&apos;t pull up the receipts right now.
           </p>
         ) : (
           <div className="space-y-4 text-sm">
             <div>
-              <h4 className="mb-2 font-semibold">Menace Points</h4>
+              <h4 className="mb-2 font-semibold">Menace Score</h4>
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-lg bg-muted p-2">
                   <p className="text-lg font-bold">{stats.points_30d}</p>
@@ -100,12 +100,12 @@ export function MemberStatsSheet({
             <Separator />
 
             <div>
-              <h4 className="mb-2 font-semibold">Most Common Offense</h4>
+              <h4 className="mb-2 font-semibold">Signature Move</h4>
               <p>
                 {stats.most_common_offense
                   ? TYPE_LABELS[stats.most_common_offense] ||
                     stats.most_common_offense
-                  : "None yet"}
+                  : "Squeaky clean (for now)"}
               </p>
             </div>
 
@@ -113,7 +113,7 @@ export function MemberStatsSheet({
               <>
                 <Separator />
                 <div>
-                  <h4 className="mb-2 font-semibold">Offense Breakdown</h4>
+                  <h4 className="mb-2 font-semibold">Greatest Hits</h4>
                   <div className="space-y-1">
                     {stats.offense_breakdown.map((o) => (
                       <div
@@ -139,7 +139,7 @@ export function MemberStatsSheet({
                 <p className="font-semibold">
                   {stats.flake_streak > 0
                     ? `🔥 ${stats.flake_streak} in a row`
-                    : "Clean"}
+                    : "Spotless (sus)"}
                 </p>
               </div>
               <div>

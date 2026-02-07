@@ -41,7 +41,7 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Your Groups</h1>
+        <h1 className="text-2xl font-bold">Your Crews</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setJoinOpen(true)}>
             <UserPlus className="mr-2 h-4 w-4" />
@@ -62,9 +62,9 @@ export default function DashboardPage() {
         </div>
       ) : groups.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="mb-2 text-lg font-medium">No groups yet</p>
+          <p className="mb-2 text-lg font-medium">No crews yet</p>
           <p className="mb-6 text-sm text-muted-foreground">
-            Create a group or join one with an invite code.
+            Start a crew or join one with an invite code. Someone&apos;s gotta keep score.
           </p>
           <div className="flex gap-2">
             <Button

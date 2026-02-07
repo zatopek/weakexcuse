@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Roast Board",
-  description: "Track your friends' flaking, ghosting, and general unreliability",
+  description: "Your friends are flaky. Now there's a scoreboard for it.",
 };
 
 export default function RootLayout({

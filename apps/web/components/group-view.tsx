@@ -82,11 +82,11 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
 
   function copyInviteCode() {
     navigator.clipboard.writeText(group.invite_code);
-    toast.success("Invite code copied!");
+    toast.success("Invite code copied! Spread the accountability");
   }
 
   async function handleLeave() {
-    if (!confirm("Leave this group? Your stats will be frozen.")) return;
+    if (!confirm("Dip out? Your stats will be frozen for all to see.")) return;
     try {
       await api(`/groups/${group.id}/leave`, { method: "POST" });
       toast.success("Left group");
@@ -120,16 +120,16 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
             onClick={() => setCreateOpen(true)}
           >
             <Plus className="mr-2 h-3.5 w-3.5" />
-            File incident
+            Call someone out
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="feed">
         <TabsList>
-          <TabsTrigger value="feed">Feed</TabsTrigger>
-          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
-          <TabsTrigger value="members">Members</TabsTrigger>
+          <TabsTrigger value="feed">The Feed</TabsTrigger>
+          <TabsTrigger value="leaderboard">Hall of Shame</TabsTrigger>
+          <TabsTrigger value="members">The Squad</TabsTrigger>
         </TabsList>
 
         <TabsContent value="feed" className="mt-4 space-y-4">
@@ -139,9 +139,9 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
             ))
           ) : incidents.length === 0 ? (
             <div className="py-16 text-center text-muted-foreground">
-              <p className="mb-2 text-lg">No incidents yet</p>
+              <p className="mb-2 text-lg">Suspiciously clean...</p>
               <p className="text-sm">
-                Be the first to file an incident (or self-report).
+                No one&apos;s been called out yet. Be the first, or come clean yourself.
               </p>
             </div>
           ) : (
@@ -192,7 +192,7 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
           <Separator className="my-6" />
           <Button variant="destructive" size="sm" onClick={handleLeave}>
             <DoorOpen className="mr-2 h-4 w-4" />
-            Leave group
+            Dip out
           </Button>
         </TabsContent>
       </Tabs>

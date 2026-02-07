@@ -68,7 +68,7 @@ export function Leaderboard({ groupId }: LeaderboardProps) {
             </div>
           ) : data.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No incidents scored yet.
+              Everyone&apos;s been an angel... allegedly.
             </p>
           ) : (
             <div className="space-y-2">

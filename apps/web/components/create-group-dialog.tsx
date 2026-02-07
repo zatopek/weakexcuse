@@ -40,7 +40,7 @@ export function CreateGroupDialog({
         method: "POST",
         body: JSON.stringify({ name: name.trim(), emoji }),
       });
-      toast.success("Group created!");
+      toast.success("Crew assembled! Let the roasting begin");
       setName("");
       setEmoji("🔥");
       onOpenChange(false);
@@ -56,7 +56,7 @@ export function CreateGroupDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Create a group</DialogTitle>
+          <DialogTitle>Start a crew</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleCreate} className="grid gap-4">
           <div className="grid gap-2">

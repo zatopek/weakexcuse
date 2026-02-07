@@ -30,9 +30,9 @@ const INCIDENT_TYPES = [
 ];
 
 const SEVERITY_OPTIONS = [
-  { value: "mild", label: "Mild (1pt)", description: "Annoying but forgivable" },
-  { value: "bad", label: "Bad (2pts)", description: "Seriously uncool" },
-  { value: "criminal", label: "Criminal (3pts)", description: "Unforgivable" },
+  { value: "mild", label: "Mild (1pt)", description: "Eye-roll worthy" },
+  { value: "bad", label: "Bad (2pts)", description: "Genuinely not cool" },
+  { value: "criminal", label: "Criminal (3pts)", description: "Legendary fumble" },
 ];
 
 interface CreateIncidentDialogProps {
@@ -63,7 +63,7 @@ export function CreateIncidentDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!accusedId) {
-      toast.error("Select a target");
+      toast.error("Who are we calling out here?");
       return;
     }
 
@@ -82,7 +82,7 @@ export function CreateIncidentDialog({
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success("Incident filed!");
+        toast.success("The record has been updated, your honor");
         setAccusedId("");
         setType("last_minute_cancel");
         setSeverity("mild");
@@ -103,14 +103,14 @@ export function CreateIncidentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>File an incident</DialogTitle>
+          <DialogTitle>Who fumbled?</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid gap-2">
-            <Label>Who?</Label>
+            <Label>Who did it?</Label>
             <Select value={accusedId} onValueChange={setAccusedId}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a member" />
+                <SelectValue placeholder="Pick the suspect..." />
               </SelectTrigger>
               <SelectContent>
                 {members.map((m) => (
@@ -137,7 +137,7 @@ export function CreateIncidentDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label>How bad?</Label>
+            <Label>How bad was it?</Label>
             <RadioGroup value={severity} onValueChange={setSeverity}>
               {SEVERITY_OPTIONS.map((s) => (
                 <div key={s.value} className="flex items-center space-x-2">
@@ -178,7 +178,7 @@ export function CreateIncidentDialog({
           </div>
 
           <Button type="submit" disabled={loading}>
-            {loading ? "Filing..." : "File incident"}
+            {loading ? "Logging it..." : "Put it on the record"}
           </Button>
         </form>
       </DialogContent>

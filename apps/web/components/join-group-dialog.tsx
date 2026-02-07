@@ -42,7 +42,7 @@ export function JoinGroupDialog({
       if (group.error) {
         toast.error(group.error);
       } else {
-        toast.success("Joined group!");
+        toast.success("You're in! No backing out now");
         setCode("");
         onOpenChange(false);
         onJoined();
@@ -59,7 +59,7 @@ export function JoinGroupDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Join a group</DialogTitle>
+          <DialogTitle>Join a crew</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleJoin} className="grid gap-4">
           <div className="grid gap-2">
