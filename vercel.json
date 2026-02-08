@@ -2,5 +2,5 @@
   "buildCommand": "pnpm --filter @weakexcuse/web build",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "outputDirectory": "apps/web/.next"
+  "outputDirectory": ".next"
 }
