@@ -12,7 +12,8 @@ import { IncidentCard } from "@/components/incident-card";
 import { CreateIncidentDialog } from "@/components/create-incident-dialog";
 import { Leaderboard } from "@/components/leaderboard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, DoorOpen, Plus } from "lucide-react";
+import { InviteDialog } from "@/components/invite-dialog";
+import { DoorOpen, Plus, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 interface IncidentData {
@@ -61,6 +62,7 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
   const [incidents, setIncidents] = useState<IncidentData[]>([]);
   const [loadingIncidents, setLoadingIncidents] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const router = useRouter();
 
   async function loadIncidents() {
@@ -79,11 +81,6 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
   useEffect(() => {
     loadIncidents();
   }, [group.id]);
-
-  function copyInviteCode() {
-    navigator.clipboard.writeText(group.invite_code);
-    toast.success("Invite code copied! Spread the accountability");
-  }
 
   async function handleLeave() {
     if (!confirm("Dip out? Your stats will be frozen for all to see.")) return;
@@ -110,8 +107,8 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={copyInviteCode}>
-            <Copy className="mr-2 h-3.5 w-3.5" />
+          <Button variant="outline" size="sm" onClick={() => setInviteOpen(true)}>
+            <UserPlus className="mr-2 h-3.5 w-3.5" />
             Invite
           </Button>
           <Button
@@ -203,6 +200,13 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
         groupId={group.id}
         members={group.members}
         onCreated={loadIncidents}
+      />
+
+      <InviteDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        groupId={group.id}
+        inviteCode={group.invite_code}
       />
     </div>
   );

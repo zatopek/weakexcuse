@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { sql } from "@weakexcuse/db";
+import { sendInviteEmail } from "../lib/sendgrid.js";
 
 export async function groupRoutes(app: FastifyInstance) {
   // GET /groups — list user's groups
@@ -104,6 +105,52 @@ export async function groupRoutes(app: FastifyInstance) {
     }
 
     return group;
+  });
+
+  // POST /groups/:id/invite — send email invite
+  app.post("/groups/:id/invite", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { email } = request.body as { email: string };
+
+    if (!email || !email.includes("@")) {
+      return reply.code(400).send({ error: "A valid email is required" });
+    }
+
+    // Verify membership
+    const [membership] = await sql`
+      SELECT 1 FROM group_members
+      WHERE group_id = ${id} AND user_id = ${request.user.id} AND left_at IS NULL
+    `;
+    if (!membership) {
+      return reply.code(403).send({ error: "Not a member of this group" });
+    }
+
+    // Get group details
+    const [group] = await sql`
+      SELECT name, emoji, invite_code FROM groups WHERE id = ${id}
+    `;
+    if (!group) {
+      return reply.code(404).send({ error: "Group not found" });
+    }
+
+    // Get inviter name
+    const [inviter] = await sql`
+      SELECT name, email FROM users WHERE id = ${request.user.id}
+    `;
+
+    try {
+      await sendInviteEmail({
+        to: email,
+        inviterName: inviter.name || inviter.email,
+        groupName: group.name,
+        groupEmoji: group.emoji,
+        inviteCode: group.invite_code,
+      });
+    } catch {
+      return reply.code(500).send({ error: "Failed to send invite email" });
+    }
+
+    return { ok: true };
   });
 
   // POST /groups/:id/leave — leave group (freezes stats)

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^10",
+    "@sendgrid/mail": "^8.1.6",
     "@supabase/supabase-js": "^2.95.3",
     "@weakexcuse/db": "workspace:*",
     "dotenv": "^17.2.4",
