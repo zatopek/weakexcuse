@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { createClient } from "@/lib/supabase/client";
 import { GroupView } from "@/components/group-view";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -26,6 +27,7 @@ export default function GroupPage() {
   const params = useParams();
   const groupId = params.id as string;
   const [group, setGroup] = useState<GroupData | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadGroup() {
@@ -41,6 +43,9 @@ export default function GroupPage() {
 
   useEffect(() => {
     loadGroup();
+    createClient().auth.getUser().then(({ data }) => {
+      if (data.user) setCurrentUserId(data.user.id);
+    });
   }, [groupId]);
 
   if (loading) {
@@ -52,7 +57,7 @@ export default function GroupPage() {
     );
   }
 
-  if (!group) {
+  if (!group || !currentUserId) {
     return (
       <div className="py-20 text-center text-muted-foreground">
         Group not found or you don&apos;t have access.
@@ -60,5 +65,5 @@ export default function GroupPage() {
     );
   }
 
-  return <GroupView group={group} onUpdate={loadGroup} />;
+  return <GroupView group={group} currentUserId={currentUserId} onUpdate={loadGroup} />;
 }

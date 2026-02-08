@@ -57,12 +57,14 @@ interface IncidentCardProps {
     reaction_counts: Array<{ emoji: string; count: number }> | null;
     confirm_votes: number;
     reject_votes: number;
+    eligible_voters: number;
   };
   members: Array<{ user_id: string; name: string }>;
+  currentUserId: string;
   onAction: () => void;
 }
 
-export function IncidentCard({ incident, onAction }: IncidentCardProps) {
+export function IncidentCard({ incident, currentUserId, onAction }: IncidentCardProps) {
   const [loading, setLoading] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const typeInfo = TYPE_LABELS[incident.type] || {
@@ -74,6 +76,10 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
     variant: "outline" as const,
   };
   const timeAgo = formatTimeAgo(incident.created_at);
+
+  const isAccused = currentUserId === incident.accused_id;
+  const isAccuser = currentUserId === incident.accuser_id;
+  const canVote = !isAccused && !isAccuser;
 
   async function handleAction(action: "accept" | "deny") {
     setLoading(true);
@@ -174,7 +180,7 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
             />
 
             <div className="flex items-center gap-2">
-              {incident.status === "pending" && (
+              {incident.status === "pending" && isAccused && (
                 <>
                   <Button
                     size="sm"
@@ -199,26 +205,39 @@ export function IncidentCard({ incident, onAction }: IncidentCardProps) {
               {incident.status === "disputed" && (
                 <>
                   <span className="text-xs text-muted-foreground">
-                    {incident.confirm_votes} say guilty
+                    {incident.confirm_votes} of {incident.eligible_voters} say guilty
+                    {" "}&middot;{" "}
+                    {incident.reject_votes} of {incident.eligible_voters} say innocent
                   </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={loading}
-                    onClick={() => handleVote(true)}
-                  >
-                    <AlertTriangle className="mr-1 h-3.5 w-3.5" />
-                    Guilty
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={loading}
-                    onClick={() => handleVote(false)}
-                  >
-                    Innocent
-                  </Button>
+                  {canVote && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={loading}
+                        onClick={() => handleVote(true)}
+                      >
+                        <AlertTriangle className="mr-1 h-3.5 w-3.5" />
+                        Guilty
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={loading}
+                        onClick={() => handleVote(false)}
+                      >
+                        Innocent
+                      </Button>
+                    </>
+                  )}
                 </>
+              )}
+              {incident.status === "rejected" && (
+                <span className="text-xs text-muted-foreground">
+                  {incident.confirm_votes} of {incident.eligible_voters} said guilty
+                  {" "}&middot;{" "}
+                  {incident.reject_votes} of {incident.eligible_voters} said innocent
+                </span>
               )}
             </div>
           </div>

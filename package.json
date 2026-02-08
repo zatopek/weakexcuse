@@ -2,7 +2,7 @@
   "name": "weakexcuse",
   "private": true,
   "scripts": {
-    "dev": "pnpm -r --parallel dev",
+    "dev": "pnpm --filter @weakexcuse/db build && pnpm -r --parallel dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "dev:web": "pnpm --filter @weakexcuse/web dev",

@@ -1,0 +1,11 @@
+node_modules
+.next
+.env
+*.md
+.git
+.gitignore
+.dockerignore
+fly.toml
+dist
+.turbo
+.vercel

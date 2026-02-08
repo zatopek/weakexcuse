@@ -1,7 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { sql } from "@weakexcuse/db";
-
-const CONFIRM_QUORUM = 2;
+import { checkAndResolveMajority } from "../lib/majority";
 
 export async function voteRoutes(app: FastifyInstance) {
   // POST /votes — cast a vote on a disputed incident
@@ -21,12 +20,16 @@ export async function voteRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "Incident is not in disputed status" });
     }
 
-    // Can't vote on your own incident
-    if (
-      incident.accused_id === request.user.id ||
-      incident.accuser_id === request.user.id
-    ) {
-      return reply.code(403).send({ error: "Cannot vote on incidents you are involved in" });
+    // Accused can't vote
+    if (incident.accused_id === request.user.id) {
+      return reply.code(403).send({ error: "Cannot vote on incidents you are accused in" });
+    }
+
+    // Accuser's vote is auto-cast and immutable
+    if (incident.accuser_id === request.user.id) {
+      return reply
+        .code(403)
+        .send({ error: "Your vote was automatically cast when you filed the callout" });
     }
 
     // Must be a group member
@@ -45,21 +48,27 @@ export async function voteRoutes(app: FastifyInstance) {
       ON CONFLICT (incident_id, user_id) DO UPDATE SET confirm = ${confirm}
     `;
 
-    // Check quorum
-    const [{ count }] = await sql`
-      SELECT count(*) FROM votes
-      WHERE incident_id = ${incident_id} AND confirm = true
+    // Check majority
+    const resolution = await checkAndResolveMajority(
+      incident_id,
+      incident.group_id,
+      incident.accused_id,
+    );
+
+    const [{ confirm_count, reject_count }] = await sql`
+      SELECT
+        count(*) FILTER (WHERE confirm = true) AS confirm_count,
+        count(*) FILTER (WHERE confirm = false) AS reject_count
+      FROM votes
+      WHERE incident_id = ${incident_id}
     `;
 
-    if (parseInt(count) >= CONFIRM_QUORUM) {
-      await sql`
-        UPDATE incidents
-        SET status = 'confirmed', scored_at = now(), updated_at = now()
-        WHERE id = ${incident_id}
-      `;
-    }
-
-    return { ok: true, confirm_count: parseInt(count) };
+    return {
+      ok: true,
+      confirm_count: parseInt(confirm_count),
+      reject_count: parseInt(reject_count),
+      resolution,
+    };
   });
 
   // GET /votes/:incident_id — get votes for an incident

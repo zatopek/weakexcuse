@@ -37,6 +37,7 @@ interface IncidentData {
   reaction_counts: Array<{ emoji: string; count: number }> | null;
   confirm_votes: number;
   reject_votes: number;
+  eligible_voters: number;
 }
 
 interface GroupViewProps {
@@ -55,10 +56,11 @@ interface GroupViewProps {
       role: string;
     }>;
   };
+  currentUserId: string;
   onUpdate: () => void;
 }
 
-export function GroupView({ group, onUpdate }: GroupViewProps) {
+export function GroupView({ group, currentUserId, onUpdate }: GroupViewProps) {
   const [incidents, setIncidents] = useState<IncidentData[]>([]);
   const [loadingIncidents, setLoadingIncidents] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
@@ -147,6 +149,7 @@ export function GroupView({ group, onUpdate }: GroupViewProps) {
                 key={incident.id}
                 incident={incident}
                 members={group.members}
+                currentUserId={currentUserId}
                 onAction={loadIncidents}
               />
             ))

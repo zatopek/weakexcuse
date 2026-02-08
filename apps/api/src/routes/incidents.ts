@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { sql } from "@weakexcuse/db";
+import { checkAndResolveMajority } from "../lib/majority";
 
 const SELF_REPORT_EXPIRY_HOURS = 48;
 const ACCUSATION_EXPIRY_DAYS = 7;
@@ -39,7 +40,8 @@ export async function incidentRoutes(app: FastifyInstance) {
          ) r
         ) AS reaction_counts,
         (SELECT count(*) FROM votes WHERE incident_id = i.id AND confirm = true) AS confirm_votes,
-        (SELECT count(*) FROM votes WHERE incident_id = i.id AND confirm = false) AS reject_votes
+        (SELECT count(*) FROM votes WHERE incident_id = i.id AND confirm = false) AS reject_votes,
+        (SELECT count(*) FROM group_members WHERE group_id = i.group_id AND user_id != i.accused_id AND left_at IS NULL) AS eligible_voters
       FROM incidents i
       JOIN users accuser ON accuser.id = i.accuser_id
       JOIN users accused ON accused.id = i.accused_id
@@ -173,6 +175,18 @@ export async function incidentRoutes(app: FastifyInstance) {
       RETURNING *
     `;
 
-    return updated;
+    // Auto-cast accuser's confirm vote
+    await sql`
+      INSERT INTO votes (incident_id, user_id, confirm)
+      VALUES (${id}, ${incident.accuser_id}, true)
+      ON CONFLICT DO NOTHING
+    `;
+
+    // Check if accuser's vote alone reaches majority (e.g. 2-person group)
+    await checkAndResolveMajority(id, incident.group_id, incident.accused_id);
+
+    // Re-fetch to return current status
+    const [final] = await sql`SELECT * FROM incidents WHERE id = ${id}`;
+    return final;
   });
 }
