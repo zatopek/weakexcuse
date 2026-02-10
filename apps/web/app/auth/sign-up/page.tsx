@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,8 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/";
   const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,7 +39,7 @@ export default function SignUpPage() {
       return;
     }
 
-    router.push("/");
+    router.push(next);
     router.refresh();
   }
 
@@ -56,7 +58,7 @@ export default function SignUpPage() {
               await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: {
-                  redirectTo: `${location.origin}/auth/callback`,
+                  redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
                 },
               });
             }}
@@ -135,7 +137,7 @@ export default function SignUpPage() {
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/auth/sign-in" className="underline">
+            <Link href={`/auth/sign-in${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`} className="underline">
               Sign in
             </Link>
           </p>
