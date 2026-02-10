@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-export default function JoinGroupPage() {
+function JoinGroupContent() {
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
   const router = useRouter();
@@ -76,5 +76,13 @@ export default function JoinGroupPage() {
         <p className="text-sm">Joining group...</p>
       </div>
     </div>
+  );
+}
+
+export default function JoinGroupPage() {
+  return (
+    <Suspense>
+      <JoinGroupContent />
+    </Suspense>
   );
 }

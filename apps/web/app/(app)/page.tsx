@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { GroupCard } from "@/components/group-card";
 import { CreateGroupDialog } from "@/components/create-group-dialog";
@@ -22,6 +23,16 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const router = useRouter();
+
+  // After OAuth, Supabase may drop the ?next= param. Check sessionStorage fallback.
+  useEffect(() => {
+    const pending = sessionStorage.getItem("auth-redirect");
+    if (pending) {
+      sessionStorage.removeItem("auth-redirect");
+      router.replace(pending);
+    }
+  }, [router]);
 
   async function loadGroups() {
     try {
