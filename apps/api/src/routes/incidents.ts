@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { sql } from "@weakexcuse/db";
-import { checkAndResolveMajority } from "../lib/majority";
+import { checkAndResolveMajority } from "../lib/majority.js";
 
 const SELF_REPORT_EXPIRY_HOURS = 48;
 const ACCUSATION_EXPIRY_DAYS = 7;

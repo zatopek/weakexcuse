@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { sql } from "@weakexcuse/db";
-import { checkAndResolveMajority } from "../lib/majority";
+import { checkAndResolveMajority } from "../lib/majority.js";
 
 export async function voteRoutes(app: FastifyInstance) {
   // POST /votes — cast a vote on a disputed incident
